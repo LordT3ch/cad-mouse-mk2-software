@@ -72,8 +72,8 @@ Stáhni `CadMouseMK2-vX.Y.zip` z **[Releases](../../releases)** a rozbal ho do s
 ### Varianty firmwaru
 | Soubor | USB ID v režimu SpaceMouse | Funguje s |
 |---|---|---|
-| `firmware.uf2` | `256F:C631` (3Dconnexion SpaceMouse Pro) | Všechny programy výše, vyžaduje 3Dconnexion, nepotřebuje Fusion doplněk |
-| `firmware-generic-vid.uf2` | `2E8A:0CAE` | Fusion 360 + doplněk, Blender, režim Joystick, aplikace – bez 3Dconnexion - zkratky tlačítek, nebo správné chování v jiných programech není otestováno a bylo by potřeba jej ručně vytvořit |
+| `firmware.uf2` | `256F:C631` (3Dconnexion SpaceMouse Pro) | všemi programy výše – Fusion přes doplněk nebo 3DxWare, SolidWorks/Inventor/Onshape/FreeCAD jen s 3DxWare |
+| `firmware-generic-vid.uf2` | `2E8A:0CAE` | Fusion + doplněk, režim Joystick, aplikace – Blender, slicery ani 3DxWare ji nepoznají; jiné programy netestované, zkratky tlačítek by bylo potřeba vytvořit ručně |
 
 Blender, slicery a 3DxWare poznají 3D myš jen podle USB ID výrobce 3Dconnexion, proto ho výchozí firmware
 používá. To ID patří firmě 3Dconnexion a tenhle projekt s ní nijak nesouvisí. Když to nechceš,

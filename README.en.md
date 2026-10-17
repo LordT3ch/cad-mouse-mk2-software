@@ -18,12 +18,12 @@ this repository is only the software side.
 ## What it does
 
 **Firmware (XIAO RP2040)**
-- Two USB modes, switchable from the tray icon (stored in flash):
+- Two USB modes, switchable from the tray icon or by holding both side buttons (stored in flash):
   - **SpaceMouse** – shows up as a 3Dconnexion SpaceMouse Pro, works in Blender, slicers (Bambu Studio…),
     and with 3DxWare in SolidWorks, Inventor, Onshape, FreeCAD…
   - **Joystick** – plain 6-axis game controller with 32 buttons (games, flight sims).
-- **Motion teaching** – push/tilt/twist the knob in each direction once and the mouse learns
-  your hardware (magnet placement, spring stiffness) instead of hand-tuned gains.
+- **Motion teaching** – push/tilt/twist the knob in each direction a few times and the mouse learns
+  your movements (magnet placement, spring stiffness) instead of hand-tuned gains.
 - **Exclusive axes** – an axis can be made "exclusive" so small cross-talk from other axes is suppressed.
 - Per-axis dead zones and sensitivity, LED colour + brightness, favourite colours.
 - **Sleep** after 3 minutes of inactivity (LED off, knob ignored), wake it with a side button.
@@ -74,8 +74,8 @@ Download `CadMouseMK2-vX.Y.zip` from **[Releases](../../releases)** and extract 
 ### Firmware variants
 | File | USB ID in SpaceMouse mode | Works with |
 |---|---|---|
-| `firmware.uf2` | `256F:C631` (3Dconnexion SpaceMouse Pro) | everything above |
-| `firmware-generic-vid.uf2` | `2E8A:0CAE` | Fusion add-in, Joystick mode, the app – **not** Blender/slicers/3DxWare |
+| `firmware.uf2` | `256F:C631` (3Dconnexion SpaceMouse Pro) | all programs above – Fusion via the add-in or 3DxWare, SolidWorks/Inventor/Onshape/FreeCAD only with 3DxWare |
+| `firmware-generic-vid.uf2` | `2E8A:0CAE` | Fusion + add-in, Joystick mode, the app – Blender, slicers and 3DxWare won't recognise it; other programs untested, button shortcuts would have to be created manually |
 
 Blender, slicers and 3DxWare only recognise a space mouse by the 3Dconnexion USB vendor ID, so the default
 build reuses it. That ID belongs to 3Dconnexion; this project is not affiliated with them. Use the generic
@@ -112,6 +112,10 @@ tools/                    build & flash scripts
 The tray app runs a small HTTP/WebSocket server bound to `localhost:47390`. Connections carrying a browser
 `Origin` other than the app itself are refused (403), so random web pages cannot send commands or keystrokes.
 The app window only navigates to its own local page.
+
+## Resource usage
+The main window for calibration and LED colours uses ~300 MB RAM while open – it doesn't need to keep running.<br>
+The tray icon, which does run all the time, uses ~10 MB RAM.
 
 ## License
 - **Firmware** (`firmware/`, `platformio.ini`) and the **STL models** in `app/ladeni-web/model/` are derived from
