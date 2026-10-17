@@ -1,31 +1,30 @@
-CAD Mouse MK2 - software package
-================================
-Updates and source: https://github.com/LordT3ch/cad-mouse-mk2-software
+CAD Mouse MK2 - instalace (English: INSTALL.en.txt)
+===================================================
+Novinky a zdrojáky: https://github.com/LordT3ch/cad-mouse-mk2-software
 
-Requirements: Windows 10/11 (x64), WebView2 Runtime (built into Windows 11; on Windows 10
-get "Evergreen Runtime" from Microsoft if the app window stays blank).
+Požadavky: Windows 10/11 (x64) a WebView2 Runtime (ve Windows 11 už je; když ve Windows 10
+zůstane okno aplikace prázdné, stáhni od Microsoftu "Evergreen Runtime").
 
 1) Firmware
-   - Hold the BOOT button on the XIAO RP2040 and plug in USB.
-   - A drive called RPI-RP2 appears. Copy firmware\firmware.uf2 onto it.
-   - The mouse reboots by itself.
-   (firmware-generic-vid.uf2 = variant without the 3Dconnexion USB ID, see README.)
+   - Podrž tlačítko BOOT na XIAO RP2040 a připoj USB.
+   - Objeví se disk RPI-RP2. Zkopíruj na něj firmware\firmware.uf2.
+   - Myš se sama restartuje.
+   (firmware-generic-vid.uf2 = varianta bez USB ID 3Dconnexion, viz README na GitHubu.)
 
-2) Tray app
-   - Extract this zip to a folder you can write to (e.g. Documents\CadMouseMK2),
-     NOT to Program Files - the app saves its button settings next to the exe.
-   - Run tray\CadMouseTray.exe. An icon appears next to the clock.
-   - Right-click the icon -> "Spouštět s Windows" (start with Windows).
-   - Windows SmartScreen may warn because the exe is not signed: More info -> Run anyway.
+2) Ikonka u hodin
+   - Rozbal tenhle zip do složky, kam se dá zapisovat (např. Dokumenty\CadMouseMK2),
+     NE do Program Files - aplikace si vedle exe ukládá nastavení tlačítek.
+   - Spusť tray\CadMouseTray.exe. U hodin se objeví ikonka.
+   - Pravým na ikonku -> "Spouštět s Windows".
+   - Windows SmartScreen může varovat, protože exe není podepsané:
+     Další informace -> Přesto spustit.
 
-3) Autodesk Fusion (optional, replaces 3DxWare in Fusion)
-   - Fusion: Shift+S -> Add-Ins tab -> "+" -> select folder fusion-addin\CadMouseNav.
-   - Tick "Run on Startup" and press Run.
-   - If 3DxWare is installed too, disable either 3DxWare in Fusion or this add-in,
-     otherwise the view moves twice.
+3) Autodesk Fusion (volitelné, ve Fusionu nahradí 3DxWare)
+   - Ve Fusionu: Shift+S -> záložka Add-Ins -> "+" -> vyber složku fusion-addin\CadMouseNav.
+   - Zaškrtni "Run on Startup" a dej Run.
+   - Když máš nainstalované i 3DxWare, vypni ve Fusionu buď 3DxWare, nebo tenhle doplněk,
+     jinak se pohled hýbe dvakrát.
 
-4) Calibration
-   - Left-click the tray icon -> "Ladění a kalibrace" (debug & calibration window).
-   - Run "Naučit všechny pohyby" (teach all motions) and follow the prompts.
-
-Note: the user interface is currently in Czech. See README.md for details.
+4) Kalibrace
+   - Klikni levým na ikonku -> "Ladění a kalibrace".
+   - Dej "Naučit všechny pohyby" a postupuj podle pokynů.

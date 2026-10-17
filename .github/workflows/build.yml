@@ -68,7 +68,7 @@ jobs:
           cp -r app/ladeni-web "$D/ladeni-web"
           mkdir -p "$D/fusion-addin"
           cp -r fusion-addin/CadMouseNav "$D/fusion-addin/"
-          cp INSTALL.txt LICENSE.md LICENSE-CC-BY-NC-SA-4.0.txt LICENSE-GPL-3.0.txt "$D/"
+          cp INSTALL.txt INSTALL.en.txt LICENSE.md LICENSE-CC-BY-NC-SA-4.0.txt LICENSE-GPL-3.0.txt "$D/"
           NAME="CadMouseMK2-${GITHUB_REF_NAME//\//-}.zip"
           (cd pkg && zip -r "../$NAME" CadMouseMK2)
           echo "ZIP=$NAME" >> "$GITHUB_ENV"
