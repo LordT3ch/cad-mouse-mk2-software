@@ -19,7 +19,7 @@ Tohle repo řeší jen software.
   - **SpaceMouse** – hlásí se jako 3Dconnexion SpaceMouse Pro. Funguje v Blenderu, slicerech (Bambu Studio…)
     a s 3DxWare i v SolidWorks, Inventoru, Onshape, FreeCADu…
   - **Joystick** – obyčejný 6osý herní ovladač s 32 tlačítky (hry, letecké simulátory).
-- **Učení pohybů** – každým směrem knoflíkem párkrát zatlačíš, nakloníš nebo otočíš a myš se naučí tvůj kus
+- **Učení pohybů** – každým směrem knoflíkem párkrát zatlačíš, nakloníš nebo otočíš a myš se naučí tvé pohyby
   (umístění magnetů, tuhost pružiny). Žádné ruční ladění zesílení.
 - **Výhradní osy** – osa může být „výhradní“, takže ji ostatní osy nerozhodí (třeba čisté otáčení v CADu).
 - Mrtvé zóny a citlivost pro každý směr, barva a jas LED, oblíbené barvy.
@@ -72,8 +72,8 @@ Stáhni `CadMouseMK2-vX.Y.zip` z **[Releases](../../releases)** a rozbal ho do s
 ### Varianty firmwaru
 | Soubor | USB ID v režimu SpaceMouse | Funguje s |
 |---|---|---|
-| `firmware.uf2` | `256F:C631` (3Dconnexion SpaceMouse Pro) | vším výše |
-| `firmware-generic-vid.uf2` | `2E8A:0CAE` | doplněk Fusionu, režim Joystick, aplikace – **ne** Blender/slicery/3DxWare |
+| `firmware.uf2` | `256F:C631` (3Dconnexion SpaceMouse Pro) | Všechny programy výše, vyžaduje 3Dconnexion, nepotřebuje Fusion doplněk |
+| `firmware-generic-vid.uf2` | `2E8A:0CAE` | Fusion 360 + doplněk, Blender, režim Joystick, aplikace – bez 3Dconnexion - zkratky tlačítek, nebo správné chování v jiných programech není otestováno a bylo by potřeba jej ručně vytvořit |
 
 Blender, slicery a 3DxWare poznají 3D myš jen podle USB ID výrobce 3Dconnexion, proto ho výchozí firmware
 používá. To ID patří firmě 3Dconnexion a tenhle projekt s ní nijak nesouvisí. Když to nechceš,
@@ -112,6 +112,10 @@ tools/                    skripty pro sestavení a nahrání
 Ikonka spouští malý HTTP/WebSocket server jen na `localhost:47390`. Spojení s hlavičkou `Origin` jinou než
 vlastní aplikace odmítne (403), takže cizí webové stránky nemůžou posílat příkazy ani stisky kláves.
 Okno aplikace nepustí navigaci mimo svou lokální stránku.
+
+## Optimalizace
+Hlavní program pro kalibraci a nastavení barev při běhu využívá ~300MB RAM - nemusí běžet pořád.
+Ikonka v systémové liště která už běžet musí stále ~10MB RAM.
 
 ## Licence
 - **Firmware** (`firmware/`, `platformio.ini`) a **STL modely** v `app/ladeni-web/model/` vychází z CAD Mouse MK2
