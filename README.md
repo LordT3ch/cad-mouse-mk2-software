@@ -114,7 +114,7 @@ vlastní aplikace odmítne (403), takže cizí webové stránky nemůžou posíl
 Okno aplikace nepustí navigaci mimo svou lokální stránku.
 
 ## Optimalizace
-Hlavní program pro kalibraci a nastavení barev při běhu využívá ~300MB RAM - nemusí běžet pořád.
+Hlavní program pro kalibraci a nastavení barev při běhu využívá ~300MB RAM - nemusí běžet pořád.<br>
 Ikonka v systémové liště která už běžet musí stále ~10MB RAM.
 
 ## Licence
