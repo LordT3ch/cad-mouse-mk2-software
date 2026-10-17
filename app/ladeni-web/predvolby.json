@@ -1,0 +1,70 @@
+{
+  "obecne": [
+    { "label": "Zpět", "keys": "Ctrl+Z" },
+    { "label": "Znovu", "keys": "Ctrl+Y" },
+    { "label": "Zrušit (Esc)", "keys": "Escape" },
+    { "label": "Potvrdit (Enter)", "keys": "Return" },
+    { "label": "Uložit", "keys": "Ctrl+S" },
+    { "label": "Kopírovat", "keys": "Ctrl+C" },
+    { "label": "Vložit", "keys": "Ctrl+V" },
+    { "label": "Přepnout okno", "keys": "Alt+Tab" },
+    { "label": "Výřez obrazovky", "keys": "Win+Shift+S" },
+    { "label": "Přehrát / pauza", "keys": "MediaPlayPause" },
+    { "label": "Ztlumit zvuk", "keys": "VolumeMute" }
+  ],
+  "programy": {
+    "fusion360": {
+      "name": "Autodesk Fusion",
+      "akce": [
+        { "label": "Domů – Go Home (jako domeček u ViewCube)", "keys": "Fusion:Home" },
+        { "label": "Celý model do okna (Fit)", "keys": "Fusion:Fit" },
+        { "label": "Pohled zepředu", "keys": "Fusion:View:Front" },
+        { "label": "Pohled shora", "keys": "Fusion:View:Top" },
+        { "label": "Pohled zprava", "keys": "Fusion:View:Right" },
+        { "label": "Pohled zleva", "keys": "Fusion:View:Left" },
+        { "label": "Izometrický pohled", "keys": "Fusion:View:Iso" },
+        { "label": "Přepnout perspektivu / pravoúhlý pohled", "keys": "Fusion:Ortho" },
+        { "label": "Přepnout drátový model", "keys": "Fusion:Wireframe" },
+        { "label": "Celá obrazovka", "keys": "Fusion:FullScreen" },
+        { "label": "Přizpůsobit pohled (F6)", "keys": "F6" },
+        { "label": "Hledat příkaz (S)", "keys": "S" },
+        { "label": "Vysunout (E)", "keys": "E" },
+        { "label": "Kóta (D)", "keys": "D" },
+        { "label": "Přesunout (M)", "keys": "M" },
+        { "label": "Zpět", "keys": "Ctrl+Z" },
+        { "label": "Znovu", "keys": "Ctrl+Y" }
+      ]
+    },
+    "blender": {
+      "name": "Blender",
+      "map": [-5, 4, 0, 0, 0, 6],
+      "press": { "to": 2, "flip": true },
+      "akce": [
+        { "label": "Zobrazit vše (Home)", "keys": "Home" },
+        { "label": "Zaměřit výběr (Num .)", "keys": "Decimal" },
+        { "label": "Perspektiva / pravoúhle (Num 5)", "keys": "NumPad5" },
+        { "label": "Pohled zepředu (Num 1)", "keys": "NumPad1" },
+        { "label": "Pohled zprava (Num 3)", "keys": "NumPad3" },
+        { "label": "Pohled shora (Num 7)", "keys": "NumPad7" },
+        { "label": "Editační režim (Tab)", "keys": "Tab" },
+        { "label": "Zpět", "keys": "Ctrl+Z" },
+        { "label": "Znovu", "keys": "Ctrl+Shift+Z" }
+      ]
+    },
+    "bambu-studio": {
+      "name": "Bambu Studio",
+      "akce": [
+        { "label": "Výchozí pohled (Ctrl+0)", "keys": "Ctrl+D0" },
+        { "label": "Přizpůsobit pohled (Z)", "keys": "Z" },
+        { "label": "Pohled shora (Ctrl+1)", "keys": "Ctrl+D1" },
+        { "label": "Pohled zepředu (Ctrl+3)", "keys": "Ctrl+D3" },
+        { "label": "Izometrický pohled (Ctrl+7)", "keys": "Ctrl+D7" },
+        { "label": "Slicovat podložku (Ctrl+R)", "keys": "Ctrl+R" },
+        { "label": "Tisknout podložku (Ctrl+Shift+G)", "keys": "Ctrl+Shift+G" },
+        { "label": "Rozmístit objekty (A)", "keys": "A" },
+        { "label": "Zpět", "keys": "Ctrl+Z" },
+        { "label": "Znovu", "keys": "Ctrl+Shift+Z" }
+      ]
+    }
+  }
+}

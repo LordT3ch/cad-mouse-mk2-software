@@ -1,0 +1,13 @@
+{
+	"autodeskProduct": "Fusion360",
+	"type": "addin",
+	"id": "7c1b2e5a-4d3f-4b8e-9a61-0cad0e5e2026",
+	"author": "LordT3ch",
+	"description": {
+		"": "Navigace kamery z CAD Mouse MK2 bez 3DxWare (zkušební). Data z ikonky CadMouseTray."
+	},
+	"version": "0.1",
+	"runOnStartup": true,
+	"supportedOS": "windows",
+	"editEnabled": true
+}

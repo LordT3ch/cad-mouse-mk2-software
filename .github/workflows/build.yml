@@ -1,0 +1,82 @@
+# Builds firmware (PlatformIO) + tray app (csc on Windows) and packs one zip.
+# Every run uploads the zip as a workflow artifact; pushing a tag v* also attaches it to a GitHub Release.
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install platformio
+      - run: pio run -e seeed_xiao_rp2040 -e generic_vid
+      - run: |
+          mkdir out
+          cp .pio/build/seeed_xiao_rp2040/firmware.uf2 out/firmware.uf2
+          cp .pio/build/generic_vid/firmware.uf2 out/firmware-generic-vid.uf2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: out/
+
+  tray:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./tools/build-tray.ps1
+        shell: pwsh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tray
+          path: |
+            app/tray/CadMouseTray.exe
+            app/tray/*.dll
+            app/tray/cadmouse.ico
+            app/tray/WebView2-LICENSE.txt
+
+  package:
+    needs: [firmware, tray]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # only for attaching the zip to a release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: firmware
+          path: pkg/CadMouseMK2/firmware
+      - uses: actions/download-artifact@v4
+        with:
+          name: tray
+          path: pkg/CadMouseMK2/tray
+      - name: Assemble zip
+        run: |
+          D=pkg/CadMouseMK2
+          # tray/CadMouseTray.exe looks for ../ladeni-web next to its own folder
+          cp -r app/ladeni-web "$D/ladeni-web"
+          mkdir -p "$D/fusion-addin"
+          cp -r fusion-addin/CadMouseNav "$D/fusion-addin/"
+          cp INSTALL.txt LICENSE.md LICENSE-CC-BY-NC-SA-4.0.txt LICENSE-GPL-3.0.txt "$D/"
+          NAME="CadMouseMK2-${GITHUB_REF_NAME//\//-}.zip"
+          (cd pkg && zip -r "../$NAME" CadMouseMK2)
+          echo "ZIP=$NAME" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CadMouseMK2
+          path: ${{ env.ZIP }}
+      - if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ZIP }}

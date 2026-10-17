@@ -1,0 +1,31 @@
+CAD Mouse MK2 - software package
+================================
+Updates and source: https://github.com/LordT3ch/cad-mouse-mk2-software
+
+Requirements: Windows 10/11 (x64), WebView2 Runtime (built into Windows 11; on Windows 10
+get "Evergreen Runtime" from Microsoft if the app window stays blank).
+
+1) Firmware
+   - Hold the BOOT button on the XIAO RP2040 and plug in USB.
+   - A drive called RPI-RP2 appears. Copy firmware\firmware.uf2 onto it.
+   - The mouse reboots by itself.
+   (firmware-generic-vid.uf2 = variant without the 3Dconnexion USB ID, see README.)
+
+2) Tray app
+   - Extract this zip to a folder you can write to (e.g. Documents\CadMouseMK2),
+     NOT to Program Files - the app saves its button settings next to the exe.
+   - Run tray\CadMouseTray.exe. An icon appears next to the clock.
+   - Right-click the icon -> "Spouštět s Windows" (start with Windows).
+   - Windows SmartScreen may warn because the exe is not signed: More info -> Run anyway.
+
+3) Autodesk Fusion (optional, replaces 3DxWare in Fusion)
+   - Fusion: Shift+S -> Add-Ins tab -> "+" -> select folder fusion-addin\CadMouseNav.
+   - Tick "Run on Startup" and press Run.
+   - If 3DxWare is installed too, disable either 3DxWare in Fusion or this add-in,
+     otherwise the view moves twice.
+
+4) Calibration
+   - Left-click the tray icon -> "Ladění a kalibrace" (debug & calibration window).
+   - Run "Naučit všechny pohyby" (teach all motions) and follow the prompts.
+
+Note: the user interface is currently in Czech. See README.md for details.

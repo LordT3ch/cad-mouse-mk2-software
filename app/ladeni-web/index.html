@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAD Mouse</title>
+<link rel="icon" href="logo.png">
+<style>
+  :root {
+    --bg: #16181b; --panel: #1d2024; --raised: #24282d; --line: #30353b; --text: #ecebe8; --muted: #8e939a;
+    --accent: #e5322d; --led: #e5322d; --ok: #46c06a; --warn: #f0a43a;
+    --x: #e0645e; --y: #6dbf73; --z: #5a8fe8;
+    --r-lg: 14px; --r-sm: 7px;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  /* Bez scrollu: kolečko/3D myš by jinak posouvala stránku. Vše se vejde do okna. */
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text);
+    font: 14px/1.45 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+  h1, h2, h3 { font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; font-weight: 600; margin: 0; }
+  button { font: inherit; color: inherit; background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-sm);
+    padding: 7px 14px; cursor: pointer; }
+  button:hover { border-color: #4a5058; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button.primary:hover { filter: brightness(1.08); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .app { display: grid; height: 100vh; grid-template: auto minmax(0, 1fr) 196px / minmax(0, 1fr) 400px; gap: 12px; padding: 12px; }
+
+  header { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; padding: 2px 4px; }
+  header h1 { font-size: 18px; letter-spacing: .01em; display: flex; align-items: center; gap: 10px; }
+  header .logo { height: 30px; width: auto; }
+  .conn { color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+  .conn::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .conn.on::before { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .seg { display: inline-flex; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 2px; }
+  header .seg { margin-left: auto; }
+  .seg button { border: 0; background: transparent; border-radius: 7px; padding: 6px 16px; color: var(--muted); }
+  .seg button.on { background: var(--raised); color: var(--text); box-shadow: inset 0 -2px 0 var(--accent); }
+
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg); min-height: 0; position: relative; }
+  .scene { overflow: hidden; }
+  .scene canvas { display: block; width: 100%; height: 100%; }
+  .scene .hint { position: absolute; left: 16px; top: 12px; color: var(--muted); font-size: 12px; pointer-events: none; }
+
+  /* Kompas knoflíku — hlavní ovládací prvek stránky */
+  .side { grid-row: 2; grid-column: 2; overflow: hidden; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .side h2, .ledcard h2, .graph h2 { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .compass { flex: 1; min-height: 0; width: 100%; display: block; user-select: none; }
+  .compass .knob { fill: #22262b; stroke: #353a41; stroke-width: 1.5; }
+  .compass .ledring { fill: none; stroke: var(--led); stroke-width: 3; filter: drop-shadow(0 0 6px var(--led)); opacity: .9; }
+  .compass .guide { fill: none; stroke: #2a2e34; stroke-width: 1; stroke-dasharray: 2 5; }
+  .dir { cursor: pointer; }
+  .dir .shaft { stroke: #474d55; stroke-width: 6; fill: none; stroke-linecap: round; transition: stroke .1s; }
+  .dir .tip { fill: #aab0b8; cursor: grab; transition: fill .1s; }
+  .dir .grip { stroke: transparent; stroke-width: 22; fill: none; }
+  .dir:hover .shaft { stroke: #636a73; } .dir:hover .tip { fill: var(--text); }
+  .dir.live .shaft { stroke: var(--accent); } .dir.live .tip { fill: var(--accent); }
+  .dir.locked .shaft { stroke-dasharray: 2 7; stroke: #3a3f46; } .dir.locked .tip { fill: #3a3f46; }
+  .dir .lbl { fill: var(--muted); font-size: 12px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+  .dir.live .lbl { fill: var(--text); }
+  .press .pad { fill: #2a2f35; stroke: #474d55; stroke-width: 1.5; transition: fill .1s, stroke .1s; }
+  .press .chev { fill: none; stroke: #aab0b8; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .press:hover .pad { stroke: #8e939a; }
+  .press.live .pad { fill: #4a1715; stroke: var(--accent); } .press.live .chev { stroke: var(--accent); }
+  .press.locked .pad { stroke-dasharray: 2 4; } .press.locked .chev { stroke: #474d55; }
+  .hintline { font-size: 12px; color: var(--muted); text-align: center; }
+  .actions { display: flex; gap: 8px; justify-content: center; }
+  .side .actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .side .actions .primary { grid-column: 1 / -1; }
+
+  .bottom { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(380px, 1.7fr); gap: 12px; min-height: 0; }
+  .graph { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 10px 12px; display: flex; flex-direction: column; min-height: 0; }
+  .graph .t { display: flex; align-items: baseline; gap: 10px; font-size: 12px; color: var(--muted); }
+  .graph .t h2 { color: var(--text); margin-right: auto; }
+  .graph canvas { flex: 1; width: 100%; min-height: 0; margin-top: 4px; }
+  .lx { color: var(--x); } .ly { color: var(--y); } .lz { color: var(--z); }
+
+  /* Osy: řádek = osa, bar s mrtvou zónou, hodnota, míchání */
+  .axes { order: 1; }
+  .axrow { display: grid; grid-template-columns: 116px minmax(0, 1fr) 30px auto; align-items: center; gap: 8px; margin-top: 7px; font-size: 13px; }
+  .bar { position: relative; height: 10px; background: #2a2e34; border-radius: 5px; cursor: ew-resize; }
+  .bar .dz { position: absolute; top: -2px; bottom: -2px; background: rgba(142,147,154,.18); border-radius: 3px; }
+  .bar .val { position: absolute; top: 0; bottom: 0; background: var(--accent); border-radius: 5px; }
+  .bar::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: #59606a; }
+  .axrow .n { color: var(--muted); text-align: right; font-size: 12px; }
+  .mix { display: inline-flex; gap: 1px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 1px; }
+  .mix button { border: 0; background: transparent; padding: 1px 7px; font-size: 11px; color: var(--muted); border-radius: 5px; }
+  .mix button.on { background: var(--raised); color: var(--text); }
+  .mix button.on[data-m="2"] { color: var(--accent); }
+  .bleed { margin-top: auto; padding-top: 6px; min-height: 22px; font-size: 12px; color: var(--warn); }
+
+  .ledcard { grid-row: 3; grid-column: 2; padding: 12px 16px; display: flex; flex-direction: column; gap: 9px; }
+  .swatches { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .sw { width: 26px; height: 26px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+  .sw.on { box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--text); }
+  .picker { position: relative; width: 26px; height: 26px; border-radius: 50%; overflow: hidden; border: 1px dashed #59606a; }
+  .picker input { position: absolute; inset: -8px; width: 44px; height: 44px; border: 0; padding: 0; cursor: pointer; opacity: 0; }
+  .picker::after { content: "+"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); pointer-events: none; }
+  .swatches .save { margin-left: auto; padding: 4px 10px; font-size: 12px; }
+  .row { display: grid; grid-template-columns: 72px 1fr 44px; align-items: center; gap: 10px; font-size: 13px; }
+  .row span:last-child { color: var(--muted); text-align: right; }
+  input[type=range] { accent-color: var(--accent); width: 100%; }
+
+  /* Kalibrace — kruhy jako čtečka otisků */
+  .overlay { position: fixed; inset: 0; background: rgba(12, 13, 15, .8); backdrop-filter: blur(3px); display: grid; place-items: center; z-index: 10; }
+  .dialog { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 26px 32px 22px; width: min(560px, 94vw); text-align: center; }
+  .dialog .step { font-size: 12px; color: var(--muted); }
+  .dialog h3 { font-size: 22px; margin: 2px 0 6px; }
+  .dialog p { color: var(--muted); margin: 0 auto 14px; max-width: 46ch; }
+  .rings { display: flex; justify-content: center; gap: 30px; margin: 4px 0 6px; }
+  .ring { margin: 0; width: 150px; }
+  .ring .wrap { position: relative; width: 132px; height: 132px; margin: 0 auto; }
+  .ring .wrap > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ring .track { fill: none; stroke: #2a2e34; stroke-width: 7; }
+  .ring .fill { fill: none; stroke: var(--accent); stroke-width: 7; stroke-linecap: round;
+    transform: rotate(-90deg); transform-origin: 66px 66px; transition: stroke-dasharray .35s ease-out; }
+  .ring.full .fill { stroke: var(--ok); }
+  .ring .icon { position: absolute; inset: 16px; }
+  .ring .icon .shaft { stroke: var(--text); }
+  .ring .icon .tip { fill: var(--text); }
+  .ring.hit .wrap { animation: pulse .35s ease-out; }
+  .ring figcaption { margin-top: 6px; font-weight: 600; }
+  .ring .pct { color: var(--muted); font-size: 12px; }
+  .ring.full .pct { color: var(--ok); }
+  @keyframes pulse { 50% { transform: scale(1.05); } }
+  .msg { min-height: 22px; margin: 6px 0 14px; font-weight: 600; }
+  .msg.good { color: var(--ok); } .msg.bad { color: var(--warn); }
+
+  /* Podstránka Tlačítka */
+  header .tabs { margin-left: 8px; }
+  header .seg:not(.tabs) { margin-left: auto; }
+  .app.buttons > .scene, .app.buttons > .side, .app.buttons > .bottom, .app.buttons > .ledcard { display: none; }
+  .btnview { grid-row: 2 / 4; grid-column: 1 / -1; display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 0; overflow: hidden; }
+  .btnview[hidden] { display: none; }
+  .apps { border-right: 1px solid var(--line); padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+  .apps h2, .editor h2 { font-size: 13px; color: var(--muted); }
+  .applist { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; min-height: 0; flex: 1; }
+  .appitem { text-align: left; background: transparent; border: 1px solid transparent; padding: 9px 12px; border-radius: var(--r-sm); }
+  .appitem small { display: block; color: var(--muted); font-size: 11px; }
+  .appitem.on { background: var(--raised); border-color: var(--line); box-shadow: inset 3px 0 0 var(--accent); }
+  .editor { padding: 18px 24px; display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+  .edhead { display: flex; align-items: baseline; gap: 12px; }
+  .edhead h2 { font-size: 20px; color: var(--text); }
+  .edhead span { color: var(--muted); font-size: 12px; }
+  .edhead button { margin-left: auto; }
+  .btncards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .btncard { background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; transition: border-color .12s, box-shadow .12s; }
+  .btncard.live { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .btncard .top { display: flex; align-items: center; gap: 14px; }
+  .btncard svg { width: 92px; height: 62px; flex: none; }
+  .btncard h3 { font-size: 16px; }
+  .btncard select { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 8px 10px; width: 100%; }
+  .keyrow { display: flex; align-items: center; gap: 10px; }
+  .keys { flex: 1; min-height: 36px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; padding: 4px 10px; border: 1px dashed #4a5058; border-radius: var(--r-sm); color: var(--muted); }
+  .keys kbd { font: 600 12px "Segoe UI", sans-serif; color: var(--text); background: var(--panel); border: 1px solid #4a5058; border-bottom-width: 2px; border-radius: 5px; padding: 2px 7px; }
+  .keys.rec { border-color: var(--accent); color: var(--accent); }
+  .keyrow button { white-space: nowrap; }
+  .note { color: var(--muted); font-size: 13px; max-width: 70ch; margin: 0; }
+  .axbox { background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px 18px; }
+  .axbox h3 { font-size: 15px; margin-bottom: 8px; }
+  .axbox .axmap { display: grid; grid-template-columns: 140px minmax(0, 340px) auto auto; justify-content: start; align-items: center; gap: 8px 18px; margin-top: 6px; font-size: 13px; }
+  .axbox select { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 6px 8px; }
+  .axbox label { display: flex; align-items: center; gap: 8px; color: var(--muted); cursor: pointer; }
+  .axbox input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .zoombox { background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px 18px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
+  .zoombox h3 { grid-column: 1 / -1; font-size: 15px; }
+  .zoombox .fspeed { grid-column: 1 / -1; max-width: 520px; margin-bottom: 4px; }
+  .zoombox label { display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; }
+  .zoombox input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .zoombox.off label:not(:first-of-type) { opacity: .45; }
+  .picker-dlg { text-align: left; }
+  .picklist { max-height: 46vh; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+  .picklist h4 { margin: 10px 0 4px; font-size: 12px; color: var(--muted); font-weight: 600; }
+  .picklist button { text-align: left; background: var(--raised); }
+  .picklist small { color: var(--muted); margin-left: 6px; }
+
+  @media (max-width: 1000px) {
+    html, body { overflow: auto; }
+    .app { grid-template: auto 50vh auto auto auto / 1fr; height: auto; }
+    .side, .ledcard { grid-row: auto; grid-column: 1; }
+    .compass { height: 360px; flex: none; }
+    .bottom { grid-template-columns: 1fr; }
+    .graph { height: 150px; } .graph.axes { height: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1><img class="logo" src="logo.png" alt="">CAD Mouse MK2</h1>
+    <nav class="seg tabs" aria-label="Stránka">
+      <button id="tabTune" class="on">Ladění</button>
+      <button id="tabBtns">Tlačítka</button>
+    </nav>
+    <span id="conn" class="conn">Čekám na ikonku v liště…</span>
+    <div class="seg" role="group" aria-label="Režim myši">
+      <button id="m0" data-mode="0">SpaceMouse</button>
+      <button id="m1" data-mode="1">Joystick</button>
+    </div>
+  </header>
+
+  <section class="panel scene" id="scene">
+    <span class="hint">Hýbej knoflíkem — model ukazuje, co myš posílá do PC</span>
+  </section>
+
+  <aside class="panel side">
+    <h2>Pohyby knoflíku</h2>
+    <svg class="compass" id="compass" viewBox="0 0 320 320" aria-label="Směry pohybu knoflíku"></svg>
+    <div class="hintline">Klikni na směr a nauč ho, střed knoflíku je zmáčknutí.<br>Tažením hrotu změníš citlivost, pravým klikem směr vypneš.</div>
+    <div class="actions">
+      <button class="primary" id="wizard">Naučit všechny pohyby</button>
+      <button id="cal">Kalibrovat klid</button>
+      <button id="defaults">Výchozí</button>
+    </div>
+  </aside>
+
+  <section class="bottom" id="graphs">
+    <div class="graph axes">
+      <div class="t"><h2>Výsledné osy</h2><span>Pruh = mrtvá zóna, 1 = osa výhradně</span></div>
+      <div id="axes"></div>
+      <div class="bleed" id="bleed"></div>
+    </div>
+  </section>
+
+  <section class="panel ledcard">
+    <h2>LED a citlivost</h2>
+    <div class="swatches">
+      <span id="favs" class="swatches"></span>
+      <label class="picker" title="Vlastní barva"><input type="color" id="color" aria-label="Vlastní barva"></label>
+      <button class="save" id="favAdd" title="Uložit barvu do oblíbených — ukáže se v menu ikonky">Uložit barvu</button>
+    </div>
+    <label class="row"><span>Jas</span><input type="range" id="bright" min="0" max="255"><span id="brightV"></span></label>
+    <label class="row"><span>Citlivost</span><input type="range" id="sens" min="0.2" max="5" step="0.1"><span id="sensV"></span></label>
+  </section>
+
+  <section class="panel btnview" id="btnView" hidden>
+    <div class="apps">
+      <h2>Programy</h2>
+      <div class="applist" id="appList"></div>
+      <button id="appAdd">Přidat program</button>
+    </div>
+    <div class="editor">
+      <div class="edhead"><h2 id="edTitle"></h2><span id="edExe"></span><button id="appDel" hidden>Odebrat program</button></div>
+      <div class="btncards" id="btnCards"></div>
+      <div class="axbox" id="axBox">
+        <h3>Pohyb v tomto programu</h3>
+        <div id="axRows"></div>
+      </div>
+      <div class="zoombox">
+        <h3>Pohyb a zoom ve Fusionu</h3>
+        <div class="row fspeed"><span>Rychlost</span><input type="range" id="fSpeed" min="0.5" max="5" step="0.1"><span id="fSpeedV"></span></div>
+        <!-- mřížka po řádcích: vlevo celý zoom, vpravo tlačítka -->
+        <label><input type="checkbox" id="zOn"> Zmáčknutí knoflíku přibližuje</label>
+        <label><input type="checkbox" id="zLeft"> Levé tlačítko + zmáčknutí oddaluje</label>
+        <label><input type="checkbox" id="zInv"> Obrátit (zmáčknutí oddaluje, s tlačítkem přibližuje)</label>
+        <label><input type="checkbox" id="zRight"> Pravé tlačítko + zmáčknutí oddaluje</label>
+      </div>
+      <p class="note">Zkratka se spustí, když tlačítko pustíš. Ve Fusionu se u tlačítka, které oddaluje, nespustí, pokud jsi ho držel kvůli zoomu.
+        V režimu Joystick tlačítka zkratky neposílají, nastavíš si je přímo ve hře.</p>
+    </div>
+  </section>
+</div>
+
+<div class="overlay" id="pickOverlay" hidden>
+  <div class="dialog picker-dlg" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
+    <h3 id="pickTitle">Přidat program</h3>
+    <p>Vyber program. Pozná se podle názvu jeho souboru, takže nevadí jiný název okna ani restart PC.</p>
+    <div class="picklist" id="pickList"></div>
+    <div class="actions"><button id="pickCancel">Zavřít</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+    <div class="step" id="dlgStep"></div>
+    <h3 id="dlgTitle"></h3>
+    <p id="dlgText"></p>
+    <div class="rings" id="dlgRings"></div>
+    <div class="msg" id="dlgMsg" aria-live="polite"></div>
+    <div class="actions">
+      <button class="primary" id="dlgGo" hidden>Zavřít</button>
+      <button id="dlgCancel">Zrušit</button>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
